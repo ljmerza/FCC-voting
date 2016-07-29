@@ -1,3 +1,7 @@
+'use strict'
+
+let db = require('./db')
+
 /*
 * Set and get a local user account
  */
@@ -8,7 +12,7 @@ function setLocalUser (user, cb) {
 	})
 }
 function getLocalUser (user, cb) {
-	db.get('SELECT email, password FROM users WHERE email = ?', user, function(err, row) {
+	db.get('SELECT (userid, email, password) FROM users WHERE email = ?', user, function(err, row) {
 		// return err object and row result in json
 		cb(err, row)
 	})

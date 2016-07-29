@@ -22,13 +22,10 @@ app.use(cookieParser()) // cookies for auth
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 app.use(session({
-    name:              'FCCVotingSessions',
-    secret:            'fghtr@#$fh56SD234Fdvf',
-    resave:            true,
+    name: 'FCCVotingSessions',
+    secret: 'fghtr@#$fh56SD234Fdvf',
+    resave: true,
     saveUninitialized: true,
-    cookie:            {
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-    }
 }))
 
 app.use(passport.initialize())
