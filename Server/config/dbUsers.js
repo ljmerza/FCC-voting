@@ -12,6 +12,7 @@ function setLocalUser (user, cb) {
 	})
 }
 function getLocalUser (user, cb) {
+	console.log('get user')
 	db.get('SELECT (userid, email, password) FROM users WHERE email = ?', user, function(err, row) {
 		// return err object and row result in json
 		cb(err, row)
@@ -49,11 +50,12 @@ function getGoogleUser (user, cb) {
 // function for when useraccount/socialtoken doesnt match whats in db
 
 // export all functions
-export default {
-	getLocalUser,
-	setLocalUser,
-	getTwitterUser,
-	setTwitterUser,
-	getGoogleUser,
-	setGoogleUser
+module.exports = {
+	'db': db,
+	'getLocalUser': getLocalUser,
+	'setLocalUser': setLocalUser,
+	'getTwitterUser': getTwitterUser,
+	'setTwitterUser': setTwitterUser,
+	'getGoogleUser': getGoogleUser,
+	'setGoogleUser': setGoogleUser 
 }
