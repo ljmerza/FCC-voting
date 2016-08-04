@@ -107,43 +107,39 @@ function getGoogleUser (user, cb) {
  * getting and setting poll data
  */
 function getAllPolls (cb) {
-	db.get('SELECT pollid, name, description FROM polls', function (err, row) {
-		cb(err, row)
+	db.all('SELECT pollid, name, description FROM polls', function (err, row) {
+		return cb(err, row)
 	})
 }
 function getPoll (pollid, cb) {
-	db.get('SELECT polls.pollid, polls.name, polls.description, pollsection.name, pollsection.votes FROM polls WHERE pollid = ? INNER JOIN pollsection ON polls.pollid = pollsection.pollid' , pollid.pollid, function (err, row) {
-		cb(err, row)
+	db.all('SELECT polls.name, polls.description, pollsection.sectionid, pollsection.name, pollsection.votes FROM polls INNER JOIN pollsection ON polls.pollid = pollsection.pollid WHERE polls.pollid = ?', pollid.pollid, function (err, row) {
+		return cb(err, row)
 	})
 }
 function setPoll (poll, cb) {
-	db.get('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)' , [poll.userid, poll.name, poll.description], function (err, row) {
-		cb(err, row)
+	db.run('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)', [poll.userid, poll.name, poll.description], function (err, row) {
+		poll.section.forEach( section => {
+			db.run('INSERT INTO pollsection (pollid, name, votes) VALUES (?, ?, ?)', [this.lastID, section, 0], function(err, row) {
+				if (err) return cb(err)
+			})
+		})
+		return cb(err, row)
 	})
 }
+
 function getALLUserPolls (userid, cb) {
-	db.get('SELECT pollid, name, description FROM polls WHERE userid = ?', userid, function (err, row) {
-		cb(err, row)
+	db.all('SELECT pollid, name, description FROM polls WHERE userid = ?', userid.userid, function (err, row) {
+		 return cb(err, row)
 	})
 }
 
 
 
 /*
- * getting/setting poll section and
+ * add a vote to a poll section
  */
-function getPollSections (pollid, cb) {
-	db.get('SELECT name, votes FROM pollsection WHERE pollid = ?' , pollid, function (err, row) {
-		cb(err, row)
-	})
-}
-function setPollSection (user, cb) {
-	db.get('INSERT INTO pollsection (pollid, name, description) VALUES (?, ?, ?)', [user.pollid, user.name, user.description], function (err, row) {
-		cb(err, row)
-	})
-}
 function vote (pollsection, cb) {
-	db.get('UPDATE pollsection SET votes = votes + 1 WHERE ?', pollsection.sectionid, function (err, row) {
+	db.get('UPDATE pollsection SET votes = votes + 1 WHERE sectionid = ?', pollsection.sectionid, function (err, row) {
 		cb(err, row)
 	})
 }
@@ -162,5 +158,6 @@ module.exports = {
 	getAllPolls,
 	getPoll,
 	setPoll,
-	getALLUserPolls
+	getALLUserPolls,
+	vote
 }
