@@ -107,12 +107,12 @@ db.getAllPolls = function (cb) {
 	})
 }
 db.getPoll = function (poll, cb) {
-	db.all('SELECT polls.name, polls.description, pollsection.sectionid, pollsection.name, pollsection.votes FROM polls INNER JOIN pollsection ON polls.pollid = pollsection.pollid WHERE polls.pollid = ?', poll.pollid, function (err, row) {
+	db.all('SELECT sectionid, name, votes FROM pollsection WHERE pollid = ?', poll.pollid, function (err, row) {
 		return cb(err, row)
 	})
 }
 db.setPoll = function (poll, cb) {
-	db.run('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)', [poll.userid.userid, poll.name, poll.description], function (err, row) {
+	db.run('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)', [poll.userid, poll.name, poll.description], function (err, row) {
 		poll.section.forEach( section => {
 			db.run('INSERT INTO pollsection (pollid, name, votes) VALUES (?, ?, ?)', [this.lastID, section, 0], function(err, row) {
 				if (err) return cb(err)
