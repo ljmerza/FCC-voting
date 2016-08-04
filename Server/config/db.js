@@ -1,6 +1,7 @@
 'use strict'
 
 const fs = require("fs")
+const util = require('util')
 
 // get db file and check to see if it exists
 const file = "FCCvoter.db"
@@ -49,23 +50,17 @@ db.serialize( function () {
 })
 
 
-
-
-
-
-
-
 /*
 * Set and get a local user account
  */
-function setLocalUser (user, cb) {
+db.setLocalUser = function (user, cb) {
 	db.run('INSERT INTO users (email, password) VALUES (?, ?)', [user.email, user.password], function(err) {
 		// return err object and number of changes
 		cb(err, this.lastID)
 	})
 }
-function getLocalUser (user, cb) {
-	db.get('SELECT userid, email, password FROM users WHERE email = ?', user, function(err, row) {
+db.getLocalUser = function (user, cb) {
+	db.get('SELECT userid, email, password FROM users WHERE email = ?', user.email, function(err, row) {
 		// return err object and row result in json
 		cb(err, row)
 	})
@@ -74,12 +69,12 @@ function getLocalUser (user, cb) {
 /*
 * Set and get a twitter user account
  */
-function setTwitterUser (user, cb) {
+db.setTwitterUser = function (user, cb) {
 	db.run('INSERT INTO users (twitterToken, twitterUsername) VALUES (?, ?, ?)', [user.twitterToken, user.twitterUsername], function(err) {
 		cb(err, this.changes)
 	})
 }
-function getTwitterUser (user, cb) {
+db.getTwitterUser = function (user, cb) {
 	db.get('SELECT userid, twitterUsername FROM users WHERE twitterToken = ?', twitterToken, function(err, row) {
 		cb(err, row)
 	})
@@ -90,12 +85,12 @@ function getTwitterUser (user, cb) {
 /*
 * Set and get a google user account
  */
-function setGoogleUser (user, cb) {
+db.setGoogleUser = function (user, cb) {
 	db.run('INSERT INTO users (userid, googleUsername) VALUES (?, ?, ?)', [user.googleToken, user.googleUsername], function(err) {
 		cb(err, this.changes)
 	})
 }
-function getGoogleUser (user, cb) {
+db.getGoogleUser = function (user, cb) {
 	db.get('SELECT userid, googleUsername FROM users WHERE googleToken = ?', googleToken, function(err, row) {
 		cb(err, row)
 	})
@@ -106,18 +101,18 @@ function getGoogleUser (user, cb) {
 /*
  * getting and setting poll data
  */
-function getAllPolls (cb) {
+db.getAllPolls = function (cb) {
 	db.all('SELECT pollid, name, description FROM polls', function (err, row) {
 		return cb(err, row)
 	})
 }
-function getPoll (pollid, cb) {
-	db.all('SELECT polls.name, polls.description, pollsection.sectionid, pollsection.name, pollsection.votes FROM polls INNER JOIN pollsection ON polls.pollid = pollsection.pollid WHERE polls.pollid = ?', pollid.pollid, function (err, row) {
+db.getPoll = function (poll, cb) {
+	db.all('SELECT polls.name, polls.description, pollsection.sectionid, pollsection.name, pollsection.votes FROM polls INNER JOIN pollsection ON polls.pollid = pollsection.pollid WHERE polls.pollid = ?', poll.pollid, function (err, row) {
 		return cb(err, row)
 	})
 }
-function setPoll (poll, cb) {
-	db.run('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)', [poll.userid, poll.name, poll.description], function (err, row) {
+db.setPoll = function (poll, cb) {
+	db.run('INSERT INTO polls (userid, name, description) VALUES (?, ?, ?)', [poll.userid.userid, poll.name, poll.description], function (err, row) {
 		poll.section.forEach( section => {
 			db.run('INSERT INTO pollsection (pollid, name, votes) VALUES (?, ?, ?)', [this.lastID, section, 0], function(err, row) {
 				if (err) return cb(err)
@@ -127,8 +122,8 @@ function setPoll (poll, cb) {
 	})
 }
 
-function getALLUserPolls (userid, cb) {
-	db.all('SELECT pollid, name, description FROM polls WHERE userid = ?', userid.userid, function (err, row) {
+db.getAllUserPolls = function (user, cb) {
+	db.all('SELECT pollid, name, description FROM polls WHERE userid = ?', user.userid, function (err, row) {
 		 return cb(err, row)
 	})
 }
@@ -138,7 +133,7 @@ function getALLUserPolls (userid, cb) {
 /*
  * add a vote to a poll section
  */
-function vote (pollsection, cb) {
+db.vote = function (pollsection, cb) {
 	db.get('UPDATE pollsection SET votes = votes + 1 WHERE sectionid = ?', pollsection.sectionid, function (err, row) {
 		cb(err, row)
 	})
@@ -147,17 +142,4 @@ function vote (pollsection, cb) {
 // function for when useraccount/socialtoken doesnt match whats in db
 
 // export all functions
-module.exports = {
-	db,
-	getLocalUser,
-	setLocalUser,
-	getTwitterUser,
-	setTwitterUser,
-	getGoogleUser,
-	setGoogleUser,
-	getAllPolls,
-	getPoll,
-	setPoll,
-	getALLUserPolls,
-	vote
-}
+module.exports = db
