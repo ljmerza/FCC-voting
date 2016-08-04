@@ -112,7 +112,7 @@ function getAllPolls (cb) {
 	})
 }
 function getPoll (pollid, cb) {
-	db.get('SELECT polls.pollid, polls.name, polls.description, pollsection.name, pollsection.votes FROM polls WHERE pollid = ?' , pollid.pollid, function (err, row) {
+	db.get('SELECT polls.pollid, polls.name, polls.description, pollsection.name, pollsection.votes FROM polls WHERE pollid = ? INNER JOIN pollsection ON polls.pollid = pollsection.pollid' , pollid.pollid, function (err, row) {
 		cb(err, row)
 	})
 }
@@ -130,7 +130,7 @@ function getALLUserPolls (userid, cb) {
 
 
 /*
- * getting and setting poll section
+ * getting/setting poll section and
  */
 function getPollSections (pollid, cb) {
 	db.get('SELECT name, votes FROM pollsection WHERE pollid = ?' , pollid, function (err, row) {
@@ -143,7 +143,7 @@ function setPollSection (user, cb) {
 	})
 }
 function vote (pollsection, cb) {
-	db.get('INSERT INTO pollsection (pollid, name, description) VALUES (?, ?, ?)', [pollsection.pollid, pollsection.name, pollsection.description], function (err, row) {
+	db.get('UPDATE pollsection SET votes = votes + 1 WHERE ?', pollsection.sectionid, function (err, row) {
 		cb(err, row)
 	})
 }

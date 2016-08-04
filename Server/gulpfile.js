@@ -10,7 +10,6 @@ var gulp = require('gulp'),
     cssnano = require('gulp-cssnano'),
     babel = require('gulp-babel'),
     notify = require("gulp-notify"),
-    ejs = require("gulp-ejs"),
     merge = require('merge-stream'),
     htmlmin = require('gulp-htmlmin'),
     plumber = require('gulp-plumber'),
@@ -103,7 +102,7 @@ gulp.task('images', () => {
 // Node-sync task
 gulp.task('nodemon', () => {
     nodemon({
-        script: 'dev-server.js',
+        script: 'server.js',
         ignore: ['./gulpfile.js','./node_modules','./db', './public']
     })
     .on('restart', () => {

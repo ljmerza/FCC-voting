@@ -19,8 +19,8 @@ app.set('view cache', true)
 require('./config/passport')(passport) // pass passport object to auth functions
 
 app.use(cookieParser()) // cookies for auth
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(session({
     name: 'FCCVotingSessions',
     secret: 'fghtr@#$fh56SD234Fdvf',
